@@ -1,0 +1,15 @@
+# To use:
+#   $ conda env create -f environment.yml
+#   $ conda activate <name>
+name: machinelearnear-default
+dependencies:
+  - python=3.9
+  - pip
+  - nb_conda_kernels
+  - ipykernel
+  - ipywidgets
+  - gh
+  - opencv
+  - pip:
+    - torch==1.10.1
+    - torchvision==0.11.2
