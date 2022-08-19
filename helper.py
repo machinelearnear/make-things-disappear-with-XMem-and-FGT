@@ -2,11 +2,16 @@
 # - https://yiyixuxu.github.io/2022/06/12/It-Happened-One-Frame.html
 # - https://huggingface.co/spaces/YiYiXu/it-happened-one-frame-2/blob/main/app.py
 
-import os
+import os, sys
 import shutil
 import numpy as np
 import datetime
-import cv2, youtube_dl
+import cv2
+try:
+    import youtube_dl
+except:
+    os.system("pip install youtube_dl")
+    import youtube_dl
 
 from pathlib import Path
 from PIL import Image,ImageDraw, ImageFont
@@ -14,7 +19,7 @@ from functools import partial
 from multiprocessing.pool import Pool
 
 
-def select_video_format(url, ydl_opts={}, format_note='240p', ext='mp4', max_size = 500000000):
+def select_video_format(url, ydl_opts={}, format_note='240p', ext='mp4', max_size = 500000000, **kwargs):
     defaults = ['480p', '360p','240p','144p']
     ydl_opts = ydl_opts
     ydl = youtube_dl.YoutubeDL(ydl_opts)
@@ -36,7 +41,7 @@ def select_video_format(url, ydl_opts={}, format_note='240p', ext='mp4', max_siz
     print(f'format selected: {format}')
     return(format, format_id, fps)
   
-def download_video(url):
+def download_video(url, **kwargs):
     # create "videos" foder for saved videos
     path_videos = Path('videos')
     try:
@@ -72,7 +77,7 @@ def download_video(url):
         
     return(fps, save_location)
 
-def process_video_parallel(video, skip_frames, dest_path, num_processes, process_number):
+def process_video_parallel(video, skip_frames, dest_path, num_processes, process_number, **kwargs):
     cap = cv2.VideoCapture(video)
     frames_per_process = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) // (num_processes)
     count =  frames_per_process * process_number
@@ -83,13 +88,13 @@ def process_video_parallel(video, skip_frames, dest_path, num_processes, process
         if not ret:
             break
         if count  % skip_frames ==0:
-            filename =f"{dest_path}/{count}.jpg"
+            filename =f"{dest_path}/{count}.png"
             cv2.imwrite(filename, frame)
         count += 1
     cap.release()
 
 
-def vid2frames(url, sampling_interval=1):
+def vid2frames(url, sampling_interval=1, **kwargs):
     # create folder for extracted frames - if folder exists, delete and create a new one
     path_frames = Path('frames')
     try:
